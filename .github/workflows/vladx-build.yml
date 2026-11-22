@@ -59,6 +59,8 @@ jobs:
       - name: Check that plain JavaScript still works
         run: |
           ./out/Release/node -e "if (true) { const se = 1; console.log('JS ok', se); }"
+      - name: Run VladX and related tests
+        run: python3 tools/test.py -j4 parallel/test-vladx parallel/test-bootstrap-modules 'parallel/test-vm-*' 'parallel/test-require-*' 'parallel/test-eval*' 'parallel/test-module-*'
       - name: Upload binary
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
