@@ -726,6 +726,16 @@ RAIIIsolate::~RAIIIsolate() {}
 
 // Returns a string representation of the input value, including type.
 // JavaScript implementation is available in lib/internal/errors.js
+bool IsVladXFilename(v8::Isolate* isolate, v8::Local<v8::Value> filename) {
+  if (filename.IsEmpty() || !filename->IsString()) return false;
+  Utf8Value name(isolate, filename);
+  std::string_view view = name.ToStringView();
+  // Ignore a URL query string or fragment (e.g. file:///a.vlx?v=1).
+  size_t end = view.find_first_of("?#");
+  if (end != std::string_view::npos) view = view.substr(0, end);
+  return view.ends_with(".vlx");
+}
+
 std::string DetermineSpecificErrorType(Environment* env,
                                        v8::Local<v8::Value> input) {
   if (input->IsFunction()) {

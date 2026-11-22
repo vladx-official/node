@@ -1,0 +1,20 @@
+esporta funzione saluta(nome) {
+  se (nome === nullo) {
+    ritorna 'Ciao, sconosciuto!';
+  } altrimenti {
+    ritorna `Ciao, ${nome}!`;
+  }
+}
+
+esporta classe Persona {
+  #eta;
+  costruttore(nome, eta) {
+    questo.nome = nome;
+    questo.#eta = eta;
+  }
+  ottieni eta() { ritorna questo.#eta; }
+  descrivi() {
+    ritorna `${questo.nome} ha ${questo.eta} anni`;
+  }
+  statico crea(nome) { ritorna nuovo Persona(nome, 0); }
+}

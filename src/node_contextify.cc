@@ -1044,7 +1044,8 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
                       false,           // is opaque (?)
                       false,           // is WASM
                       false,           // is ES Module
-                      host_defined_options);
+                      host_defined_options,
+                      IsVladXFilename(isolate, filename));  // is VladX
   ScriptCompiler::Source source(code, origin, cached_data);
   ScriptCompiler::CompileOptions compile_options =
       ScriptCompiler::kNoCompileOptions;
@@ -1453,7 +1454,8 @@ void ContextifyFunction::CompileFunction(
                       false,           // is opaque (?)
                       false,           // is WASM
                       false,           // is ES Module
-                      host_defined_options);
+                      host_defined_options,
+                      IsVladXFilename(isolate, filename));  // is VladX
   ScriptCompiler::Source source(code, origin, cached_data);
 
   ScriptCompiler::CompileOptions options;
@@ -1669,7 +1671,8 @@ static MaybeLocal<Function> CompileFunctionForCJSLoader(
                       false,           // is opaque
                       false,           // is WASM
                       false,           // is ES Module
-                      hdo);
+                      hdo,
+                      IsVladXFilename(isolate, filename));  // is VladX
 
   CompileCacheEntry* cache_entry = nullptr;
   if (cached_data == nullptr && env->use_compile_cache()) {

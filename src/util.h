@@ -1113,6 +1113,11 @@ class RAIIIsolate {
 std::string DetermineSpecificErrorType(Environment* env,
                                        v8::Local<v8::Value> input);
 
+// VladX: returns true if |filename| (a path or URL) names a VladX source
+// file (extension ".vlx"). Such files are compiled with the VladX keyword
+// table (see v8::ScriptOriginOptions::IsVladX()).
+bool IsVladXFilename(v8::Isolate* isolate, v8::Local<v8::Value> filename);
+
 v8::Maybe<int32_t> GetValidatedFd(Environment* env, v8::Local<v8::Value> input);
 v8::Maybe<int> GetValidFileMode(Environment* env,
                                 v8::Local<v8::Value> input,

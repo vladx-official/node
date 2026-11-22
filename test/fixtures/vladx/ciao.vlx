@@ -1,0 +1,38 @@
+// Primo programma VladX.
+importa { saluta, Persona } da './libreria.vlx';
+
+costante nomi = ['Vlad', 'Giulia', nullo];
+
+per (sia nome di nomi) {
+  console.log(saluta(nome));
+}
+
+costante p = nuovo Persona('Marco', 30);
+console.log(p.descrivi());
+console.log(p istanzadi Persona, tipodi p, tipodi indefinito);
+
+asincrona funzione aspetta() {
+  costante x = attendi Promise.resolve(42);
+  ritorna x;
+}
+console.log('risposta:', attendi aspetta());
+
+prova {
+  lancia nuovo Error('qualcosa è andato storto');
+} cattura (e) {
+  console.log('errore catturato:', e.message);
+} infine {
+  console.log('fine');
+}
+
+sia i = 0;
+mentre (vero) {
+  i++;
+  se (i > 3) interrompi;
+}
+console.log('i =', i);
+
+scegli (i) {
+  caso 4: console.log('quattro'); interrompi;
+  predefinito: console.log('altro');
+}

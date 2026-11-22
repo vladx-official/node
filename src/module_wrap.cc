@@ -508,7 +508,8 @@ MaybeLocal<Module> ModuleWrap::CompileSourceTextModule(
                       false,           // is opaque (?)
                       false,           // is WASM
                       true,            // is ES Module
-                      host_defined_options);
+                      host_defined_options,
+                      IsVladXFilename(isolate, url));  // is VladX
   ScriptCompiler::CachedData* cached_data = nullptr;
   CompileCacheEntry* cache_entry = nullptr;
   // When compiling for the default loader, user_cached_data is std::nullptr.
