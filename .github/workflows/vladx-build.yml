@@ -1,0 +1,66 @@
+name: VladX Build
+
+# Builds the VladX runtime (Node.js + V8 with the VladX/Italian mode) and
+# runs the VladX sample programs.
+
+on:
+  push:
+    branches:
+      - main
+      - 'claude/**'
+      - 'vladx/**'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.12'
+  CC: sccache gcc
+  CXX: sccache g++
+  SCCACHE_GHA_ENABLED: 'true'
+  SCCACHE_IDLE_TIMEOUT: '0'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Set up sccache
+        uses: Mozilla-Actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba  # v0.0.11
+        with:
+          version: v0.17.0
+      - name: Install ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - name: Configure
+        run: ./configure --ninja
+      - name: Build
+        run: ninja -C out/Release -j4 node
+      - name: sccache stats
+        if: always()
+        run: sccache --show-stats
+      - name: Run VladX samples
+        run: |
+          ./out/Release/node --version
+          ./out/Release/node test/fixtures/vladx/ciao.vlx
+      - name: Check that plain JavaScript still works
+        run: |
+          ./out/Release/node -e "if (true) { const se = 1; console.log('JS ok', se); }"
+      - name: Upload binary
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: vladx-linux-x64
+          path: out/Release/node
+          retention-days: 14
