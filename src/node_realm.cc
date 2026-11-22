@@ -339,6 +339,11 @@ MaybeLocal<Value> PrincipalRealm::BootstrapRealm() {
     }
   }
 
+  // VladX: Italian names for the standard library.
+  if (ExecuteBootstrapper("internal/bootstrap/vladx").IsEmpty()) {
+    return MaybeLocal<Value>();
+  }
+
   // TODO(joyeecheung): skip these in the snapshot building for workers.
   auto thread_switch_id =
       env_->is_main_thread() ? "internal/bootstrap/switches/is_main_thread"

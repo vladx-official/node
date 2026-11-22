@@ -1,0 +1,39 @@
+// Libreria standard in italiano.
+costante numeri = Vettore.da([5, 3, 8, 1]);
+console.stampa('lunghezza:', numeri.lunghezza);
+console.stampa('doppi:', numeri.mappa((n) => n * 2).unisci(', '));
+console.stampa('pari:', numeri.filtra((n) => n % 2 === 0));
+console.stampa('somma:', numeri.riduci((a, b) => a + b, 0));
+console.stampa('ordinati:', numeri.ordinato((a, b) => a - b));
+
+costante testo = '  Ciao Mondo  ';
+console.stampa(testo.rifila().maiuscolo(), testo.rifila().lunghezza);
+console.stampa('ciao,mondo'.dividi(','));
+
+console.stampa('massimo:', Matematica.massimo(...numeri));
+console.stampa('casuale tra 0 e 1:', Matematica.casuale() < 1);
+console.stampa('arrotonda:', Matematica.arrotonda(2.6), Matematica.PI_GRECO.inFisso(2));
+
+costante dati = JSON.analizza('{"nome":"Vlad","eta":30}');
+console.stampa(Oggetto.chiavi(dati), JSON.inStringa(dati));
+
+costante mappa = nuovo Mappa();
+mappa.imposta('uno', 1).imposta('due', 2);
+console.stampa('mappa:', mappa.ottieni('due'), mappa.dimensione);
+
+costante insieme = nuovo Insieme([1, 2, 2, 3]);
+console.stampa('insieme:', insieme.dimensione, insieme.ha(2));
+
+prova {
+  lancia nuovo ErroreTipo('tipo sbagliato');
+} cattura (e) {
+  console.errore('errore:', e.nome, e.messaggio);
+}
+
+costante risultati = attendi Promessa.tutte([
+  Promessa.risolvi(1),
+  nuovo Promessa((risolvi) => impostaTimeout(() => risolvi(2), 10)),
+]);
+console.stampa('promesse:', risultati);
+
+console.stampa('piattaforma:', processo.piattaforma, tipodi processo.ambiente);
