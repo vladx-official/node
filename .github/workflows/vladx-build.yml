@@ -55,6 +55,7 @@ jobs:
         run: |
           ./out/Release/node --version
           ./out/Release/node test/fixtures/vladx/ciao.vlx
+          ./out/Release/node test/fixtures/vladx/biblioteca.vlx
       - name: Check that plain JavaScript still works
         run: |
           ./out/Release/node -e "if (true) { const se = 1; console.log('JS ok', se); }"
