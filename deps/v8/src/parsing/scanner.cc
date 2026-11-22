@@ -1002,7 +1002,7 @@ void Scanner::RewriteVladXIdentifierAlias() {
   LiteralBuffer& literal = next().literal_chars;
   if (!literal.is_one_byte()) return;
 #define VLADX_ALIAS(vladx_name, js_name)                \
-  if (literal.Equals(base::StaticCharVector(vladx_name))) { \
+  if (literal.Equals(base::Vector<const char>(vladx_name, sizeof(vladx_name) - 1))) { \
     literal.Start();                                    \
     for (const char* c = js_name; *c != '\0'; c++) {    \
       literal.AddChar(*c);                              \
