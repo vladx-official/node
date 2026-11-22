@@ -671,6 +671,10 @@
   V(_, Float64Array_string, "Float64Array")                                   \
   V(_, fractionalSecondDigits_string, "fractionalSecondDigits")               \
   V(_, from_string, "from")                                                   \
+  /* VladX contextual keywords */                                             \
+  V(_, vladx_as_string, "come")                                               \
+  V(_, vladx_from_string, "da")                                               \
+  V(_, vladx_target_string, "obiettivo")                                      \
   V(_, function_native_code_string, "function () { [native code] }")          \
   V(_, Function_prototype_apply_string, "Function.prototype.apply")           \
   V(_, Function_prototype_call_string, "Function.prototype.call")             \
