@@ -432,7 +432,7 @@ V8_OBJECT class Script : public Struct {
   using CompilationStateBit =
       CompilationKindBits::Next<Script::CompilationState, 1>;
   using IsReplModeBit = CompilationStateBit::Next<bool, 1>;
-  using OriginOptionsBits = IsReplModeBit::Next<int32_t, 4>;
+  using OriginOptionsBits = IsReplModeBit::Next<int32_t, 5>;  // VladX: +1 bit
   using BreakOnEntryBit = OriginOptionsBits::Next<bool, 1>;
   using ProduceCompileHintsBit = BreakOnEntryBit::Next<bool, 1>;
   using DeserializedBit = ProduceCompileHintsBit::Next<bool, 1>;
