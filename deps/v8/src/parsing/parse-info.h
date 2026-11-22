@@ -62,6 +62,7 @@ class Zone;
   V(post_parallel_compile_tasks_for_lazy, bool, 1, _)           \
   V(collect_source_positions, bool, 1, _)                       \
   V(is_repl_mode, bool, 1, _)                                   \
+  V(is_vladx, bool, 1, _)                                       \
   V(produce_compile_hints, bool, 1, _)                          \
   V(compile_hints_magic_enabled, bool, 1, _)                    \
   V(compile_hints_per_function_magic_enabled, bool, 1, _)       \

@@ -152,6 +152,7 @@ void UnoptimizedCompileFlags::SetFlagsForFunctionFromScript(
 
   set_is_eval(is_toplevel() && script->has_eval_origin());
   set_is_module(script->origin_options().IsModule());
+  set_is_vladx(script->origin_options().IsVladX());
   DCHECK_IMPLIES(is_eval(), !is_module());
 
   set_block_coverage_enabled(block_coverage_enabled() &&
@@ -268,7 +269,10 @@ Handle<Script> ParseInfo::CreateScript(
     case NOT_NATIVES_CODE:
       break;
   }
-  raw_script->set_origin_options(origin_options);
+  // VladX: scripts created while compiling VladX code (e.g. direct eval from
+  // VladX code) are VladX too, so lazy recompiles keep using VladX keywords.
+  raw_script->set_origin_options(
+      origin_options.WithVladX(origin_options.IsVladX() || flags().is_vladx()));
   raw_script->set_is_repl_mode(flags().is_repl_mode());
   raw_script->set_outer_language_mode(flags().outer_language_mode());
 

@@ -3454,6 +3454,10 @@ MaybeDirectHandle<JSFunction> Compiler::GetFunctionFromEval(
         isolate, true, language_mode, REPLMode::kNo, ScriptType::kClassic,
         v8_flags.lazy_eval);
     flags.set_is_eval(true);
+    // VladX: direct eval inherits the language of the calling script.
+    flags.set_is_vladx(
+        IsScript(outer_info->script()) &&
+        Cast<Script>(outer_info->script())->origin_options().IsVladX());
     flags.set_parsing_while_debugging(parsing_while_debugging);
     flags.set_private_name_lookup_skips_outer_class(
         private_name_lookup_skips_outer_class);
@@ -4192,6 +4196,7 @@ MaybeDirectHandle<SharedFunctionInfo> GetSharedFunctionInfoForScriptImpl(
               isolate, natives == NOT_NATIVES_CODE, language_mode,
               script_details.repl_mode, script_type, v8_flags.lazy);
 
+      flags.set_is_vladx(script_details.origin_options.IsVladX());
       flags.set_is_eager(compile_options & ScriptCompiler::kEagerCompile);
       flags.set_compile_hints_magic_enabled(
           v8_flags.compile_hints_magic ||
@@ -4366,6 +4371,7 @@ MaybeDirectHandle<JSFunction> Compiler::GetWrappedFunction(
     UnoptimizedCompileFlags flags = UnoptimizedCompileFlags::ForToplevelCompile(
         isolate, true, language_mode, script_details.repl_mode,
         ScriptType::kClassic, v8_flags.lazy);
+    flags.set_is_vladx(script_details.origin_options.IsVladX());
     flags.set_is_eval(true);  // Use an eval scope as declaration scope.
     flags.set_function_syntax_kind(FunctionSyntaxKind::kWrapped);
     // TODO(delphick): Remove this and instead make the wrapped and wrapper

@@ -752,6 +752,9 @@ class V8_EXPORT_PRIVATE Scanner {
 
   Token::Value ScanNumber(bool seen_period);
   V8_INLINE Token::Value ScanIdentifierOrKeyword();
+  // VladX: replaces the literal of an identifier that is an Italian alias of
+  // a special JavaScript name (e.g. "costruttore" -> "constructor").
+  void RewriteVladXIdentifierAlias();
   V8_INLINE Token::Value ScanIdentifierOrKeywordInner();
   Token::Value ScanIdentifierOrKeywordInnerSlow(bool escaped,
                                                 bool can_be_keyword);

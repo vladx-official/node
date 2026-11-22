@@ -30,13 +30,14 @@ class ScriptOriginOptions {
  public:
   V8_INLINE ScriptOriginOptions(bool is_shared_cross_origin = false,
                                 bool is_opaque = false, bool is_wasm = false,
-                                bool is_module = false)
+                                bool is_module = false,
+                                bool is_vladx = false)
       : flags_((is_shared_cross_origin ? kIsSharedCrossOrigin : 0) |
                (is_wasm ? kIsWasm : 0) | (is_opaque ? kIsOpaque : 0) |
-               (is_module ? kIsModule : 0)) {}
+               (is_module ? kIsModule : 0) | (is_vladx ? kIsVladX : 0)) {}
   V8_INLINE ScriptOriginOptions(int flags)
-      : flags_(flags &
-               (kIsSharedCrossOrigin | kIsOpaque | kIsWasm | kIsModule)) {}
+      : flags_(flags & (kIsSharedCrossOrigin | kIsOpaque | kIsWasm |
+                        kIsModule | kIsVladX)) {}
 
   bool IsSharedCrossOrigin() const {
     return (flags_ & kIsSharedCrossOrigin) != 0;
@@ -44,6 +45,15 @@ class ScriptOriginOptions {
   bool IsOpaque() const { return (flags_ & kIsOpaque) != 0; }
   bool IsWasm() const { return (flags_ & kIsWasm) != 0; }
   bool IsModule() const { return (flags_ & kIsModule) != 0; }
+  /**
+   * VladX: the script is written in VladX (Italian keywords) instead of
+   * JavaScript. The scanner uses the VladX keyword table for it.
+   */
+  bool IsVladX() const { return (flags_ & kIsVladX) != 0; }
+  ScriptOriginOptions WithVladX(bool is_vladx) const {
+    return ScriptOriginOptions(is_vladx ? (flags_ | kIsVladX)
+                                        : (flags_ & ~kIsVladX));
+  }
 
   int Flags() const { return flags_; }
 
@@ -52,7 +62,8 @@ class ScriptOriginOptions {
     kIsSharedCrossOrigin = 1,
     kIsOpaque = 1 << 1,
     kIsWasm = 1 << 2,
-    kIsModule = 1 << 3
+    kIsModule = 1 << 3,
+    kIsVladX = 1 << 4
   };
   const int flags_;
 };
@@ -70,12 +81,13 @@ class V8_EXPORT ScriptOrigin {
                          Local<Value> source_map_url = Local<Value>(),
                          bool resource_is_opaque = false, bool is_wasm = false,
                          bool is_module = false,
-                         Local<Data> host_defined_options = Local<Data>())
+                         Local<Data> host_defined_options = Local<Data>(),
+                         bool is_vladx = false)
       : resource_name_(resource_name),
         resource_line_offset_(resource_line_offset),
         resource_column_offset_(resource_column_offset),
         options_(resource_is_shared_cross_origin, resource_is_opaque, is_wasm,
-                 is_module),
+                 is_module, is_vladx),
         script_id_(script_id),
         source_map_url_(source_map_url),
         host_defined_options_(host_defined_options) {

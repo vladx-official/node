@@ -292,7 +292,11 @@ using AstRawStringMap =
   F(this_string, "this")                                  \
   F(throw_string, "throw")                                \
   F(undefined_string, "undefined")                        \
-  F(value_string, "value")
+  F(value_string, "value")                                \
+  /* VladX contextual keywords */                         \
+  F(vladx_as_string, "come")                              \
+  F(vladx_from_string, "da")                              \
+  F(vladx_target_string, "obiettivo")
 class AstStringConstants final {
  public:
 #define F(name, str) +1

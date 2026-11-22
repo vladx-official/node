@@ -90,26 +90,135 @@ namespace internal {
   KEYWORD_GROUP('y')                                      \
   KEYWORD("yield", Token::kYield)
 
+// VladX keywords: the same tokens as JavaScript, spelled in Italian.
+// They are only active for scripts compiled with ScriptOriginOptions::IsVladX.
+// Keywords must be lowercase ASCII letters only, and each group must list the
+// keywords starting with that character.
+#define VLADX_KEYWORDS(KEYWORD_GROUP, KEYWORD)            \
+  KEYWORD_GROUP('a')                                      \
+  KEYWORD("accessore", Token::kAccessor)                  \
+  KEYWORD("altrimenti", Token::kElse)                     \
+  KEYWORD("asincrona", Token::kAsync)                     \
+  KEYWORD("attendi", Token::kAwait)                       \
+  KEYWORD_GROUP('c')                                      \
+  KEYWORD("caso", Token::kCase)                           \
+  KEYWORD("cattura", Token::kCatch)                       \
+  KEYWORD("classe", Token::kClass)                        \
+  KEYWORD("con", Token::kWith)                            \
+  KEYWORD("continua", Token::kContinue)                   \
+  KEYWORD("costante", Token::kConst)                      \
+  KEYWORD_GROUP('d')                                      \
+  KEYWORD("debugger", Token::kDebugger)                   \
+  KEYWORD("di", Token::kOf)                               \
+  KEYWORD_GROUP('e')                                      \
+  KEYWORD("elimina", Token::kDelete)                      \
+  KEYWORD("enumerazione", Token::kEnum)                   \
+  KEYWORD("esporta", Token::kExport)                      \
+  KEYWORD("estende", Token::kExtends)                     \
+  KEYWORD_GROUP('f')                                      \
+  KEYWORD("fai", Token::kDo)                              \
+  KEYWORD("falso", Token::kFalseLiteral)                  \
+  KEYWORD("funzione", Token::kFunction)                   \
+  KEYWORD_GROUP('i')                                      \
+  KEYWORD("implementa", Token::kFutureStrictReservedWord) \
+  KEYWORD("importa", Token::kImport)                      \
+  KEYWORD("imposta", Token::kSet)                         \
+  KEYWORD("in", Token::kIn)                               \
+  KEYWORD("infine", Token::kFinally)                      \
+  KEYWORD("interfaccia", Token::kFutureStrictReservedWord) \
+  KEYWORD("interrompi", Token::kBreak)                    \
+  KEYWORD("istanzadi", Token::kInstanceOf)                \
+  KEYWORD_GROUP('l')                                      \
+  KEYWORD("lancia", Token::kThrow)                        \
+  KEYWORD_GROUP('m')                                      \
+  KEYWORD("mentre", Token::kWhile)                        \
+  KEYWORD_GROUP('n')                                      \
+  KEYWORD("nullo", Token::kNullLiteral)                   \
+  KEYWORD("nuovo", Token::kNew)                           \
+  KEYWORD_GROUP('o')                                      \
+  KEYWORD("ottieni", Token::kGet)                         \
+  KEYWORD_GROUP('p')                                      \
+  KEYWORD("pacchetto", Token::kFutureStrictReservedWord)  \
+  KEYWORD("per", Token::kFor)                             \
+  KEYWORD("predefinito", Token::kDefault)                 \
+  KEYWORD("privato", Token::kFutureStrictReservedWord)    \
+  KEYWORD("produci", Token::kYield)                       \
+  KEYWORD("protetto", Token::kFutureStrictReservedWord)   \
+  KEYWORD("prova", Token::kTry)                           \
+  KEYWORD("pubblico", Token::kFutureStrictReservedWord)   \
+  KEYWORD_GROUP('q')                                      \
+  KEYWORD("questo", Token::kThis)                         \
+  KEYWORD_GROUP('r')                                      \
+  KEYWORD("ritorna", Token::kReturn)                      \
+  KEYWORD_GROUP('s')                                      \
+  KEYWORD("scegli", Token::kSwitch)                       \
+  KEYWORD("se", Token::kIf)                               \
+  KEYWORD("sia", Token::kLet)                             \
+  KEYWORD("statico", Token::kStatic)                      \
+  KEYWORD("super", Token::kSuper)                         \
+  KEYWORD_GROUP('t')                                      \
+  KEYWORD("tipodi", Token::kTypeOf)                       \
+  KEYWORD_GROUP('u')                                      \
+  KEYWORD("usando", Token::kUsing)                        \
+  KEYWORD_GROUP('v')                                      \
+  KEYWORD("variabile", Token::kVar)                       \
+  KEYWORD("vero", Token::kTrueLiteral)                    \
+  KEYWORD("vuoto", Token::kVoid)
+
 constexpr bool IsKeywordStart(char c) {
 #define KEYWORD_GROUP_CHECK(ch) c == ch ||
 #define KEYWORD_CHECK(keyword, token)
-  return KEYWORDS(KEYWORD_GROUP_CHECK, KEYWORD_CHECK) /* || */ false;
+  return KEYWORDS(KEYWORD_GROUP_CHECK, KEYWORD_CHECK)
+      VLADX_KEYWORDS(KEYWORD_GROUP_CHECK, KEYWORD_CHECK) /* || */ false;
 #undef KEYWORD_GROUP_CHECK
 #undef KEYWORD_CHECK
 }
 
-V8_INLINE Token::Value KeywordOrIdentifierToken(const uint8_t* input,
-                                                int input_length) {
+V8_INLINE Token::Value VladXKeywordOrIdentifierToken(const uint8_t* input,
+                                                     int input_length) {
   DCHECK_GE(input_length, 1);
+  switch (input[0]) {
+    case 0:
+#define VLADX_KEYWORD_GROUP_CASE(ch) \
+  break;                             \
+  case ch:
+#define VLADX_KEYWORD(keyword, token)                                       \
+  {                                                                         \
+    constexpr int keyword_length = sizeof(keyword) - 1;                     \
+    if (input_length == keyword_length &&                                   \
+        memcmp(input, keyword, keyword_length) == 0) {                      \
+      return token;                                                         \
+    }                                                                       \
+  }
+      VLADX_KEYWORDS(VLADX_KEYWORD_GROUP_CASE, VLADX_KEYWORD)
+#undef VLADX_KEYWORD
+#undef VLADX_KEYWORD_GROUP_CASE
+      break;
+  }
+  return Token::kIdentifier;
+}
+
+V8_INLINE Token::Value KeywordOrIdentifierToken(const uint8_t* input,
+                                                int input_length,
+                                                bool is_vladx = false) {
+  DCHECK_GE(input_length, 1);
+  if (V8_UNLIKELY(is_vladx)) {
+    return VladXKeywordOrIdentifierToken(input, input_length);
+  }
   return PerfectKeywordHash::GetToken(reinterpret_cast<const char*>(input),
                                       input_length);
 }
 
-// Recursive constexpr template magic to check if a character is in a given
+// constexpr helper to check if a character is in a given
 // string.
+// (Iterative, so that the combined JS + VladX keyword string does not hit the
+// constexpr recursion depth limit.)
 template <int N>
-constexpr bool IsInString(const char (&s)[N], char c, size_t i = 0) {
-  return i >= N ? false : s[i] == c ? true : IsInString(s, c, i + 1);
+constexpr bool IsInString(const char (&s)[N], char c) {
+  for (int i = 0; i < N; i++) {
+    if (s[i] == c) return true;
+  }
+  return false;
 }
 
 inline constexpr bool CanBeKeywordCharacter(char c) {
@@ -119,6 +228,7 @@ inline constexpr bool CanBeKeywordCharacter(char c) {
       // Use C string literal concatenation ("a" "b" becomes "ab") to build one
       // giant string containing all the keywords.
       KEYWORDS(KEYWORD_GROUP_CASE, KEYWORD)
+      VLADX_KEYWORDS(KEYWORD_GROUP_CASE, KEYWORD)
 #undef KEYWORD
 #undef KEYWORD_GROUP_CASE
           ,
@@ -302,11 +412,19 @@ V8_INLINE Token::Value Scanner::ScanIdentifierOrKeywordInner() {
           });
 
       if (V8_LIKELY(!IdentifierNeedsSlowPath(scan_flags))) {
-        if (!CanBeKeyword(scan_flags)) return Token::kIdentifier;
+        if (!CanBeKeyword(scan_flags)) {
+          if (V8_UNLIKELY(flags_.is_vladx())) RewriteVladXIdentifierAlias();
+          return Token::kIdentifier;
+        }
         // Could be a keyword or identifier.
         base::Vector<const uint8_t> chars =
             next().literal_chars.one_byte_literal();
-        return KeywordOrIdentifierToken(chars.begin(), chars.length());
+        Token::Value token = KeywordOrIdentifierToken(
+            chars.begin(), chars.length(), flags_.is_vladx());
+        if (V8_UNLIKELY(flags_.is_vladx()) && token == Token::kIdentifier) {
+          RewriteVladXIdentifierAlias();
+        }
+        return token;
       }
 
       can_be_keyword = CanBeKeyword(scan_flags);

@@ -1011,7 +1011,18 @@ class ParserBase {
 
   bool peek_any_identifier() { return Token::IsAnyIdentifier(peek()); }
 
+  // VladX: contextual keywords (from, as, target) are spelled in Italian.
+  const AstRawString* ContextualKeywordName(const AstRawString* name) {
+    if (V8_LIKELY(!flags().is_vladx())) return name;
+    AstValueFactory* avf = ast_value_factory();
+    if (name == avf->from_string()) return avf->vladx_from_string();
+    if (name == avf->as_string()) return avf->vladx_as_string();
+    if (name == avf->target_string()) return avf->vladx_target_string();
+    return name;
+  }
+
   bool PeekContextualKeyword(const AstRawString* name) {
+    name = ContextualKeywordName(name);
     return peek() == Token::kIdentifier &&
            !scanner()->next_literal_contains_escapes() &&
            scanner()->NextSymbol(ast_value_factory()) == name;
@@ -1027,6 +1038,7 @@ class ParserBase {
 
   void ExpectContextualKeyword(const AstRawString* name,
                                const char* fullname = nullptr, int pos = -1) {
+    name = ContextualKeywordName(name);
     Expect(Token::kIdentifier);
     if (V8_UNLIKELY(scanner()->CurrentSymbol(ast_value_factory()) != name)) {
       ReportUnexpectedToken(scanner()->current_token());

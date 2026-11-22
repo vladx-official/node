@@ -988,6 +988,32 @@ base::uc32 Scanner::ScanUnicodeEscape() {
   return ScanHexNumber<capture_raw, unicode>(4);
 }
 
+// VladX spelling -> JavaScript name. These identifiers have special meaning
+// in JavaScript, so VladX code uses them under their JavaScript names.
+#define VLADX_IDENTIFIER_ALIASES(V) \
+  V("argomenti", "arguments")       \
+  V("costruttore", "constructor")   \
+  V("indefinito", "undefined")      \
+  V("Infinito", "Infinity")         \
+  V("NonNumero", "NaN")             \
+  V("prototipo", "prototype")
+
+void Scanner::RewriteVladXIdentifierAlias() {
+  LiteralBuffer& literal = next().literal_chars;
+  if (!literal.is_one_byte()) return;
+#define VLADX_ALIAS(vladx_name, js_name)                \
+  if (literal.Equals(base::StaticCharVector(vladx_name))) { \
+    literal.Start();                                    \
+    for (const char* c = js_name; *c != '\0'; c++) {    \
+      literal.AddChar(*c);                              \
+    }                                                   \
+    return;                                             \
+  }
+  VLADX_IDENTIFIER_ALIASES(VLADX_ALIAS)
+#undef VLADX_ALIAS
+}
+#undef VLADX_IDENTIFIER_ALIASES
+
 Token::Value Scanner::ScanIdentifierOrKeywordInnerSlow(bool escaped,
                                                        bool can_be_keyword) {
   while (true) {
@@ -1015,7 +1041,11 @@ Token::Value Scanner::ScanIdentifierOrKeywordInnerSlow(bool escaped,
   if (can_be_keyword && next().literal_chars.is_one_byte()) {
     base::Vector<const uint8_t> chars = next().literal_chars.one_byte_literal();
     Token::Value token =
-        KeywordOrIdentifierToken(chars.begin(), chars.length());
+        KeywordOrIdentifierToken(chars.begin(), chars.length(),
+                                 flags_.is_vladx());
+    if (V8_UNLIKELY(flags_.is_vladx()) && token == Token::kIdentifier) {
+      RewriteVladXIdentifierAlias();
+    }
     if (!escaped) return token;
 
     if (base::IsInRange(token, Token::kIdentifier, Token::kAsync)) {
