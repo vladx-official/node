@@ -3454,8 +3454,11 @@ MaybeDirectHandle<JSFunction> Compiler::GetFunctionFromEval(
         isolate, true, language_mode, REPLMode::kNo, ScriptType::kClassic,
         v8_flags.lazy_eval);
     flags.set_is_eval(true);
-    // VladX: direct eval inherits the language of the calling script.
+    // VladX: direct eval inherits the language of the calling script. The
+    // Function constructor always takes JavaScript source: its wrapper
+    // ("(function anonymous(...") is built in JavaScript.
     flags.set_is_vladx(
+        restriction == NO_PARSE_RESTRICTION &&
         IsScript(outer_info->script()) &&
         Cast<Script>(outer_info->script())->origin_options().IsVladX());
     flags.set_parsing_while_debugging(parsing_while_debugging);

@@ -40,6 +40,7 @@ expected.beforePreExec = new Set([
   'Internal Binding types',
   'NativeModule internal/util',
   'NativeModule internal/util/types',
+  'NativeModule internal/vladx/traduzioni', // VladX: Italian standard library.
   'NativeModule internal/validators',
   'NativeModule internal/linkedlist',
   'NativeModule internal/priority_queue',

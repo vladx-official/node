@@ -1,0 +1,4 @@
+costante x = valuta('se (vero) { 1 + 1 } altrimenti { 0 }');
+console.stampa('eval VladX:', x);
+console.stampa('Function JS:', nuovo Funzione('a', 'if (a) return 7; return 0')(1));
+esporta costante valore = 'da vlx';
